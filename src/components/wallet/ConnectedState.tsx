@@ -1,7 +1,7 @@
 import React from "react";
 import { useAccount } from "wagmi";
 import { useLoginWithAbstract } from "@abstract-foundation/agw-react";
-import { SendTransaction } from "./SendTransaction";
+import { VerifyAndGetTokenButton } from "./SignInWithSignature";
 
 export function ConnectedState() {
   const { address } = useAccount();
@@ -43,7 +43,7 @@ export function ConnectedState() {
               </svg>
               Disconnect
             </button>
-            <SendTransaction />
+            <VerifyAndGetTokenButton />
           </div>
         </div>
       </div>

@@ -11,8 +11,10 @@
   "dependencies": {
     "@abstract-foundation/agw-client": "latest",
     "@abstract-foundation/agw-react": "latest",
-    "@react-three/fiber": "^9.1.2",
     "@tanstack/react-query": "^5.71.5",
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.42.0",
+    "mysql2": "^3.14.0",
     "next": "15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -26,9 +28,11 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.0",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
     "tailwindcss": "^4",
+    "tsx": "^4.19.3",
     "typescript": "^5"
   }
 }

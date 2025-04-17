@@ -1,21 +1,9 @@
 import React from "react";
 import Image from "next/image";
 import { useLoginWithAbstract } from "@abstract-foundation/agw-react";
-import { useAccount } from "wagmi";
 
 export function SignInButton() {
   const { login } = useLoginWithAbstract();
-  const { status } = useAccount();
-
-  if (status === "connecting" || status === "reconnecting") {
-    return (
-      <div className="flex items-center justify-center w-10 h-10">
-        <div className="animate-spin">
-          <Image src="/abs.svg" alt="Loading" width={24} height={24} />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <button
