@@ -6,18 +6,23 @@
     "dev": "next dev --turbopack --experimental-https",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio --port 3333"
   },
   "dependencies": {
     "@abstract-foundation/agw-client": "latest",
     "@abstract-foundation/agw-react": "latest",
     "@tanstack/react-query": "^5.71.5",
+    "@types/jsonwebtoken": "^9.0.9",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.42.0",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.0",
     "next": "15.2.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-unity-webgl": "^9.8.0",
     "viem": "^2.25.0",
     "wagmi": "^2.14.16"
@@ -26,12 +31,12 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
     "drizzle-kit": "^0.31.0",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
-    "tailwindcss": "^4",
+    "tailwindcss": "^3.4.1",
     "tsx": "^4.19.3",
     "typescript": "^5"
   }

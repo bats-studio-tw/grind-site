@@ -4,7 +4,11 @@ import React from "react";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import { UnityResponsiveLayout } from "@/components/layout/UnityResponsiveLayout";
 export default function PlayPage() {
-  const { unityProvider, isLoaded, loadingProgression } = useUnityContext({
+  const {
+    unityProvider,
+    isLoaded,
+    loadingProgression,
+  } = useUnityContext({
     loaderUrl: "game/Build/Farplanter.loader.js",
     dataUrl: "game/Build/Farplanter.data.unityweb",
     frameworkUrl: "game/Build/Farplanter.framework.js.unityweb",
