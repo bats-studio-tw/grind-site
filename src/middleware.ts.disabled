@@ -1,0 +1,83 @@
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { verifyToken } from "@/lib/jwt";
+
+// 需要認證的路由
+const protectedRoutes = [
+  "/api/game",
+  "/api/user",
+  "/api/user/equipments",
+  "/api/user/items",
+];
+
+export async function middleware(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+  console.log("Middleware checking path:", path);
+
+  // 檢查是否是需要保護的路由
+  if (protectedRoutes.some((route) => path.startsWith(route))) {
+    console.log("Protected route detected:", path);
+
+    const authHeader = request.headers.get("authorization");
+    console.log("Auth header:", authHeader);
+
+    if (!authHeader) {
+      console.log("No authorization header");
+      return new NextResponse(
+        JSON.stringify({ message: "Unauthorized - No auth header" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // 檢查並處理 Bearer token 格式
+    const tokenParts = authHeader.split(" ");
+    if (tokenParts.length !== 2 || tokenParts[0] !== "Bearer") {
+      console.log("Invalid authorization header format");
+      return new NextResponse(
+        JSON.stringify({ message: "Unauthorized - Invalid auth format" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const token = tokenParts[1];
+    console.log("Extracted token:", token);
+
+    try {
+      // 驗證 token
+      const payload = verifyToken(token);
+      console.log("Token payload:", payload);
+
+      // 將使用者地址添加到請求頭中
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.set("x-user-address", payload.address);
+
+      // 返回修改後的請求
+      return NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      });
+    } catch (error) {
+      console.error("Token verification failed:", error);
+      return new NextResponse(
+        JSON.stringify({ message: "Unauthorized - Invalid token" }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/api/:path*"],
+}; 

@@ -14,14 +14,21 @@ export default function Home() {
   return (
     <UnityResponsiveLayout aspectRatio={1170 / 2137} isLoading={isLoading}>
       <Image
-        src="/home-background.png"
+        src="/home-background.jpg"
         alt="Loading"
         fill
-        className="absolute z-0"
+        className="absolute z-0 inset-0"
       />
       {!isLoading && (
-        <div className="absolute z-10 flex flex-col items-center justify-center inset-0 gap-4">
-          {address ? <ConnectedState /> : <SignInButton />}
+        <div className="absolute z-10 flex flex-col items-center justify-top inset-0 gap-4 pt-[70vh]">
+          {address ? (
+            <ConnectedState />
+          ) : (
+            <>
+              <SignInButton />
+              <div></div>
+            </>
+          )}
         </div>
       )}
     </UnityResponsiveLayout>

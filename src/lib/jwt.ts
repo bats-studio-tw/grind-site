@@ -1,19 +1,28 @@
-import jwt from 'jsonwebtoken';
+import { SignJWT, jwtVerify } from "jose";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+export const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export interface JWTPayload {
+  [key: string]: unknown;
   address: string;
-  iat?: number;
   exp?: number;
 }
 
-export function generateToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: '7d', // token 有效期 7 天
-  });
+export async function signToken(payload: JWTPayload): Promise<string> {
+  const secret = new TextEncoder().encode(JWT_SECRET);
+  const token = await new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setExpirationTime("24h")
+    .sign(secret);
+  return token;
 }
 
-export function verifyToken(token: string): JWTPayload {
-  return jwt.verify(token, JWT_SECRET) as JWTPayload;
-} 
+export async function verifyToken(token: string): Promise<JWTPayload> {
+  try {
+    const secret = new TextEncoder().encode(JWT_SECRET);
+    const { payload } = await jwtVerify(token, secret);
+    return payload as JWTPayload;
+  } catch {
+    throw new Error("Invalid token");
+  }
+}

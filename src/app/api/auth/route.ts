@@ -3,7 +3,7 @@ import { createPublicClient, http } from "viem";
 import { abstractTestnet } from "viem/chains";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { generateToken } from "@/lib/jwt";
+import { signToken } from "@/lib/jwt";
 
 export async function POST(request: NextRequest) {
   try {
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 生成 JWT
-    const token = generateToken({ address });
+    const token = await signToken({ address });
 
     return NextResponse.json({ token });
   } catch (error) {

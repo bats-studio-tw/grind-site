@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Geist, Geist_Mono } from "next/font/google";
-import NextAbstractWalletProvider from "@/components/NextAbstractWalletProvider";
 import "./globals.css";
+import { Providers } from "@/components/Providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,13 +45,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <NextAbstractWalletProvider>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} ${avenueMono.variable} ${roobert.variable} antialiased`}
-        >
-          {children}
-        </body>
-      </NextAbstractWalletProvider>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${avenueMono.variable} ${roobert.variable} antialiased`}
+      >
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

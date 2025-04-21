@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef, PropsWithChildren } from "react";
-
+import { useDispatch } from "react-redux";
+import { setScale } from "@/store/unityScaleSlice";
 import { Loading } from "@/components/ui/Loading";
 
 interface UnityResponsiveLayoutProps {
@@ -17,6 +18,7 @@ export function UnityResponsiveLayout({
   children,
 }: PropsWithChildren<UnityResponsiveLayoutProps>) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     function setCanvasSize() {
@@ -33,15 +35,24 @@ export function UnityResponsiveLayout({
       const availableWidth = body.clientWidth - paddingLeftRight;
       const availableHeight = body.clientHeight - paddingTopBottom;
 
+      let width, height;
       if (availableWidth / availableHeight > aspectRatio) {
         // 高度優先
-        unityDesktop.style.height = availableHeight + "px";
-        unityDesktop.style.width = availableHeight * aspectRatio + "px";
+        height = availableHeight;
+        width = availableHeight * aspectRatio;
       } else {
         // 寬度優先
-        unityDesktop.style.width = availableWidth + "px";
-        unityDesktop.style.height = availableWidth / aspectRatio + "px";
+        width = availableWidth;
+        height = availableWidth / aspectRatio;
       }
+
+      unityDesktop.style.height = height + "px";
+      unityDesktop.style.width = width + "px";
+
+      // 計算並更新縮放比例
+      const originalWidth = 1170; // 假設原始寬度為 1170
+      const scale = width / originalWidth;
+      dispatch(setScale(scale));
     }
 
     window.addEventListener("resize", setCanvasSize);
@@ -49,7 +60,7 @@ export function UnityResponsiveLayout({
     return () => {
       window.removeEventListener("resize", setCanvasSize);
     };
-  }, [aspectRatio]);
+  }, [aspectRatio, dispatch]);
 
   return (
     <div className="bg-[#379b5f] flex justify-center items-center m-0 w-[100dvw] h-[100dvh] overflow-hidden">
