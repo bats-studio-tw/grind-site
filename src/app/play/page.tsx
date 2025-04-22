@@ -5,44 +5,25 @@ import { Unity, useUnityContext } from "react-unity-webgl";
 import { UnityResponsiveLayout } from "@/components/layout/UnityResponsiveLayout";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { getUserEquipments } from "@/lib/api";
+import { getUserEquipments, getItems, updateUserData } from "@/lib/api";
 import { useRouter } from "next/navigation";
-
-declare global {
-  interface Window {
-    handleGetUserData: () => string;
-  }
-}
 
 export default function PlayPage() {
   const router = useRouter();
-  const {
-    address,
-    userName,
-    character,
-    clickedCount,
-    nextTarget,
-    totalBoxes,
-    openedBoxes,
-  } = useSelector((state: RootState) => state.user);
+  const { address, userName, character, clickedCount, remainingGiftBox } =
+    useSelector((state: RootState) => state.user);
 
   // Track if event listener is registered
   const [isListenerRegistered, setIsListenerRegistered] = useState(false);
 
   // Unity context setup
-  const {
-    unityProvider,
-    isLoaded,
-    loadingProgression,
-    addEventListener,
-    removeEventListener,
-    sendMessage,
-  } = useUnityContext({
-    loaderUrl: "game/TapTapTake.loader.js",
-    dataUrl: "game/TapTapTake.data",
-    frameworkUrl: "game/TapTapTake.framework.js",
-    codeUrl: "game/TapTapTake.wasm",
-  });
+  const { unityProvider, isLoaded, loadingProgression, sendMessage } =
+    useUnityContext({
+      loaderUrl: "game/TapTapTake.loader.js",
+      dataUrl: "game/TapTapTake.data",
+      frameworkUrl: "game/TapTapTake.framework.js",
+      codeUrl: "game/TapTapTake.wasm",
+    });
 
   // 檢查用戶是否已登錄
   useEffect(() => {
@@ -54,72 +35,115 @@ export default function PlayPage() {
 
   // 獲取用戶數據
   const handleGetUserData = useCallback(() => {
-    console.log("handleGetUserData called from Unity");
-
     (async () => {
       try {
         const { data: equipments } = await getUserEquipments();
-        const hatEquipment = equipments.find((e) => e.slot === "hat");
-        const faceEquipment = equipments.find((e) => e.slot === "face");
+        const hatEquipment = equipments.find((e) => e.slot === "Hat");
+        const faceEquipment = equipments.find((e) => e.slot === "Face");
 
         const userData = {
-          UserName: userName || "",
-          Charactor: character || 0,
-          ClickedCount: clickedCount || 0,
-          NextTarget: nextTarget || 0,
-          Hat: hatEquipment ? hatEquipment.itemId : "None",
-          Face: faceEquipment ? faceEquipment.itemId : "None",
           address: address || "",
-          totalBoxes: totalBoxes || 0,
-          openedBoxes: openedBoxes || 0,
+          userName: userName || "",
+          character: character || 0,
+          clickedCount: clickedCount || 0,
+          currentClickTarget: Math.max(clickedCount, 1) * 1.5,
+          nextClickTarget: Math.max(clickedCount, 1) * 1.5 * 1.5,
+          remainingGiftBox: remainingGiftBox || 0,
+          hat: hatEquipment ? hatEquipment.itemId : "None",
+          face: faceEquipment ? faceEquipment.itemId : "None",
         };
 
-        console.log("Sending userData to Unity:", userData);
         sendMessage("GameRoot", "ReceiveUserData", JSON.stringify(userData));
       } catch (error) {
         console.error("Error sending user data to Unity", error);
       }
     })();
 
-    // Return string to match the expected return type of the event handler
     return "ok";
-  }, [
-    address,
-    character,
-    clickedCount,
-    nextTarget,
-    openedBoxes,
-    sendMessage,
-    totalBoxes,
-    userName,
-  ]);
+  }, [address, userName, character, clickedCount, remainingGiftBox]);
+
+  const handleGetInventoryItem = useCallback(() => {
+    (async () => {
+      const { data: items } = await getItems();
+
+      const inventoryItem = items.reduce<Record<string, string[]>>(
+        (acc, curr) => {
+          if (!acc[curr.slot]) {
+            acc[curr.slot] = [];
+          }
+          acc[curr.slot].push(`${curr.slot}${curr.name}`);
+          return acc;
+        },
+        {}
+      );
+
+      console.log("inventoryItem", inventoryItem);
+
+      sendMessage(
+        "GameRoot",
+        "ReceiveInventoryItem",
+        JSON.stringify(inventoryItem)
+      );
+    })();
+  }, []);
+
+  const handleUpdateClickCount = useCallback((value: string) => {
+    (async () => {
+      try {
+        const clickCount = parseInt(value);
+        if (isNaN(clickCount)) {
+          console.error("Invalid click count value:", value);
+          return;
+        }
+
+        await updateUserData({ clickedCount: clickCount });
+      } catch (error) {
+        console.error("Error updating click count:", error);
+      }
+    })();
+  }, []);
 
   // Register event listener only when Unity is loaded
   useEffect(() => {
+    let messageHandler: ((event: MessageEvent) => void) | null = null;
+
     // Only set up event listeners when Unity is fully loaded
     if (isLoaded && !isListenerRegistered) {
       console.log("Unity loaded - registering GetUserData event listener");
 
+      // Add a message event listener to catch all messages
+      messageHandler = (event: MessageEvent) => {
+        console.log("Received message:", event.data);
+        if (!event.data) return;
+        switch (event.data.type) {
+          case "GetUserData":
+            handleGetUserData();
+            break;
+          case "GetInventoryItem":
+            handleGetInventoryItem();
+            break;
+          case "UpdateClickCount":
+            handleUpdateClickCount(event.data.data);
+            break;
+          default:
+            break;
+        }
+      };
+
+      window.addEventListener("message", messageHandler);
+
       // Register the event listener
-      addEventListener("GetUserData", handleGetUserData);
       setIsListenerRegistered(true);
     }
 
-    // Cleanup function to remove event listener
+    // Cleanup
     return () => {
-      if (isListenerRegistered) {
-        console.log("Removing GetUserData event listener");
-        removeEventListener("GetUserData", handleGetUserData);
+      if (messageHandler && isListenerRegistered) {
+        window.removeEventListener("message", messageHandler);
         setIsListenerRegistered(false);
       }
     };
-  }, [
-    isLoaded,
-    isListenerRegistered,
-    addEventListener,
-    removeEventListener,
-    handleGetUserData,
-  ]);
+  }, [isLoaded, isListenerRegistered, handleGetUserData]);
 
   return (
     <UnityResponsiveLayout

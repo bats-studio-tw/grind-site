@@ -6,9 +6,7 @@ export const users = mysqlTable("users", {
   userName: varchar("user_name", { length: 50 }), // 使用者名稱
   character: int("character").default(0), // 角色 0:熊, 1:鼠
   clickedCount: int("clicked_count").default(0), // 已經點了幾次
-  nextTarget: int("next_target").default(0), // 下一個的禮物點擊次數
-  totalBoxes: int("total_boxes").default(0),
-  openedBoxes: int("opened_boxes").default(0),
+  remainingGiftBox: int("remaining_gift_box").default(0),
   createdAt: datetime("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 

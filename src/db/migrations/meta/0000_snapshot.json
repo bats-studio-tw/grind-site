@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "271b16ed-a231-43f1-b7f5-d5c04a126045",
+  "id": "c25f55d9-116a-4bbd-9e15-3e7c4796bbc2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "items": {
@@ -182,24 +182,8 @@
           "autoincrement": false,
           "default": 0
         },
-        "next_target": {
-          "name": "next_target",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": 0
-        },
-        "total_boxes": {
-          "name": "total_boxes",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": 0
-        },
-        "opened_boxes": {
-          "name": "opened_boxes",
+        "remaining_gift_box": {
+          "name": "remaining_gift_box",
           "type": "int",
           "primaryKey": false,
           "notNull": false,

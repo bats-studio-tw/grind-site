@@ -1,11 +1,9 @@
 export interface UserData {
   address: string;
   userName: string;
-  character: string;
+  character: number;
   clickedCount: number;
-  nextTarget: number;
-  totalBoxes: number;
-  openedBoxes: number;
+  remainingGiftBox: number;
 }
 
 export interface Item {

@@ -125,7 +125,7 @@ export const getItems = async (): Promise<{
   error: Error | null;
 }> => {
   try {
-    const { data } = await api.get("/items");
+    const { data } = await api.get("/user/items");
     return { data, error: null };
   } catch (error) {
     console.error("Get items error:", error);

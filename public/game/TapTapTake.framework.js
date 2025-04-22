@@ -1284,10 +1284,10 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  6224272: () => { Module['emscripten_get_now_backup'] = performance.now; },  
- 6224327: ($0) => { performance.now = function() { return $0; }; },  
- 6224375: ($0) => { performance.now = function() { return $0; }; },  
- 6224423: () => { performance.now = Module['emscripten_get_now_backup']; }
+  6225904: () => { Module['emscripten_get_now_backup'] = performance.now; },  
+ 6225959: ($0) => { performance.now = function() { return $0; }; },  
+ 6226007: ($0) => { performance.now = function() { return $0; }; },  
+ 6226055: () => { performance.now = Module['emscripten_get_now_backup']; }
 };
 
 
@@ -1645,6 +1645,38 @@ var ASM_CONSTS = {
       }
     }
 
+  function _GetGiftBoxResult() {
+      try {
+        console.log("Unity: Calling GetGiftBoxResult");
+        if (window.parent) {
+          window.parent.postMessage(
+            {
+              type: "GetGiftBoxResult",
+            },
+            "*"
+          );
+        }
+      } catch (e) {
+        console.error("Error in GetGiftBoxResult:", e);
+      }
+    }
+
+  function _GetInventoryItem() {
+      try {
+        console.log("Unity: Calling GetInventoryItem");
+        if (window.parent) {
+          window.parent.postMessage(
+            {
+              type: "GetInventoryItem",
+            },
+            "*"
+          );
+        }
+      } catch (e) {
+        console.error("Error in GetInventoryItem:", e);
+      }
+    }
+
   function _GetJSLoadTimeInfo(loadTimePtr) {
     loadTimePtr = (loadTimePtr >> 2);
     HEAPU32[loadTimePtr] = Module.pageStartupTime || 0;
@@ -1665,8 +1697,19 @@ var ASM_CONSTS = {
     }
 
   function _GetUserData() {
-      console.log("GetUserData-LIB");
-      window.dispatchReactUnityEvent("GetUserData");
+      try {
+        console.log("Unity: Calling GetUserData");
+        if (window.parent) {
+          window.parent.postMessage(
+            {
+              type: "GetUserData",
+            },
+            "*"
+          );
+        }
+      } catch (e) {
+        console.error("Error in GetUserData:", e);
+      }
     }
 
   var JS_Accelerometer = null;
@@ -7891,6 +7934,23 @@ var ASM_CONSTS = {
   
           requestOptions.timeout = timeout;
   	}
+
+  function _UpdateClickCount(count) {
+      try {
+        console.log("Unity: Calling UpdateClickCount with count:", count);
+        if (window.parent) {
+          window.parent.postMessage(
+            {
+              type: "UpdateClickCount",
+              data: count.toString(),
+            },
+            "*"
+          );
+        }
+      } catch (e) {
+        console.error("Error in UpdateClickCount:", e);
+      }
+    }
 
   function ___assert_fail(condition, filename, line, func) {
       abort(`Assertion failed: ${UTF8ToString(condition)}, at: ` + [filename ? UTF8ToString(filename) : 'unknown filename', line, func ? UTF8ToString(func) : 'unknown function']);
@@ -17326,6 +17386,8 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
 var wasmImports = {
+  "GetGiftBoxResult": _GetGiftBoxResult,
+  "GetInventoryItem": _GetInventoryItem,
   "GetJSLoadTimeInfo": _GetJSLoadTimeInfo,
   "GetJSMemoryInfo": _GetJSMemoryInfo,
   "GetUserData": _GetUserData,
@@ -17429,6 +17491,7 @@ var wasmImports = {
   "JS_WebRequest_SetRedirectLimit": _JS_WebRequest_SetRedirectLimit,
   "JS_WebRequest_SetRequestHeader": _JS_WebRequest_SetRequestHeader,
   "JS_WebRequest_SetTimeout": _JS_WebRequest_SetTimeout,
+  "UpdateClickCount": _UpdateClickCount,
   "__assert_fail": ___assert_fail,
   "__cxa_begin_catch": ___cxa_begin_catch,
   "__cxa_end_catch": ___cxa_end_catch,

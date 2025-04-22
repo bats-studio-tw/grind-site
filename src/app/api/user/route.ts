@@ -43,11 +43,8 @@ export async function PATCH(request: NextRequest) {
       "userName",
       "character",
       "clickedCount",
-      "nextTarget",
-      "hat",
-      "face",
-      "totalBoxes",
-      "openedBoxes",
+      "nextClickTarget",
+      "remainingGiftBox",
     ];
 
     const updateData = Object.fromEntries(
