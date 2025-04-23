@@ -33,7 +33,10 @@ export async function POST(request: NextRequest) {
     console.log("Current user data:", user);
 
     // Check if we should reward a gift box
-    const shouldReward = shouldRewardGiftBox(clickCount, user.clickedCount);
+    const shouldReward = shouldRewardGiftBox(
+      clickCount,
+      user.clickedCount ?? 0
+    );
     console.log("Should reward gift box:", shouldReward);
 
     // Update user data
@@ -42,8 +45,8 @@ export async function POST(request: NextRequest) {
       .set({
         clickedCount: clickCount,
         remainingGiftBox: shouldReward
-          ? user.remainingGiftBox + 1
-          : user.remainingGiftBox,
+          ? (user.remainingGiftBox ?? 0) + 1
+          : user.remainingGiftBox ?? 0,
       })
       .where(eq(users.id, address));
 
@@ -57,8 +60,8 @@ export async function POST(request: NextRequest) {
       currentClickTarget,
       nextClickTarget,
       remainingGiftBox: shouldReward
-        ? user.remainingGiftBox + 1
-        : user.remainingGiftBox,
+        ? (user.remainingGiftBox ?? 0) + 1
+        : user.remainingGiftBox ?? 0,
       shouldReward,
     });
   } catch (error) {

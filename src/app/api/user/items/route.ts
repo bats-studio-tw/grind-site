@@ -57,7 +57,6 @@ export async function POST(request: NextRequest) {
 
     // 添加物品到用戶物品列表
     await db.insert(userItems).values({
-      id: crypto.randomUUID(),
       userId: address,
       itemId,
     });

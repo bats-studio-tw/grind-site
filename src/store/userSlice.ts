@@ -49,12 +49,6 @@ export const {
   setUserName,
   setCharacter,
   setClickedCount,
-  setCurrentClickTarget,
-  setNextClickTarget,
   setRemainingGiftBox,
-  setHat,
-  setFace,
-  setTotalBoxes,
-  setOpenedBoxes,
 } = userSlice.actions;
 export default userSlice.reducer;
