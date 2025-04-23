@@ -36,10 +36,10 @@ export function VerifyAndGetTokenButton() {
     setVerificationResult(null);
 
     try {
-      const message = `Login to Grind Tap at ${new Date()
+      const message = `Login to Tap Tap Take at ${new Date()
         .toISOString()
         .slice(0, 10)}`;
-      const formattedMessage = `\x19Ethereum Signed Message:\n${message.length}${message}`;
+      const formattedMessage = `\x19Abstract Signed Message:\n${message}`;
 
       const res = await axios.post(
         "/api/auth",
