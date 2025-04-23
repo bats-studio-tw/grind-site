@@ -12,7 +12,7 @@ export default function PlayPage() {
 
   // Track if event listener is registered
   const [isListenerRegistered, setIsListenerRegistered] = useState(false);
-  const version = "1.0.1";
+  const version = "1.0.2";
   const versionSuffix = `?v=${version}`;
 
   // Unity context setup
@@ -101,6 +101,10 @@ export default function PlayPage() {
       items.forEach((item) => {
         inventoryItem[item.slot].push(`${item.slot}${item.name}`);
       });
+
+      // 陣列Hat Face去掉重複的
+      inventoryItem.Hat = [...new Set(inventoryItem.Hat)];
+      inventoryItem.Face = [...new Set(inventoryItem.Face)];
 
       sendMessage(
         "GameRoot",
