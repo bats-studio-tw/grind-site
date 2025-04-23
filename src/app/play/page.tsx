@@ -12,14 +12,16 @@ export default function PlayPage() {
 
   // Track if event listener is registered
   const [isListenerRegistered, setIsListenerRegistered] = useState(false);
+  const version = "1.0.0";
+  const versionSuffix = `?v=${version}`;
 
   // Unity context setup
   const { unityProvider, isLoaded, loadingProgression, sendMessage } =
     useUnityContext({
-      loaderUrl: "game/TapTapTake.loader.js",
-      dataUrl: "game/TapTapTake.data",
-      frameworkUrl: "game/TapTapTake.framework.js",
-      codeUrl: "game/TapTapTake.wasm",
+      loaderUrl: "game/TapTapTake.loader.js" + versionSuffix,
+      dataUrl: "game/TapTapTake.data" + versionSuffix,
+      frameworkUrl: "game/TapTapTake.framework.js" + versionSuffix,
+      codeUrl: "game/TapTapTake.wasm" + versionSuffix,
     });
 
   // 檢查用戶是否已登錄
