@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { verifyToken } from "@/lib/jwt";
 
 // 固定用戶地址，用於測試
 const TEST_ADDRESS = "0x8846C613D13D6fE0AfB3E3659E228191E4B5D929";
@@ -9,9 +10,15 @@ const TEST_ADDRESS = "0x8846C613D13D6fE0AfB3E3659E228191E4B5D929";
 // 獲取用戶資料
 export async function GET(request: NextRequest) {
   try {
-    // 使用請求頭中的用戶地址或測試地址
-    const address = request.headers.get("x-user-address") || TEST_ADDRESS;
-    console.log("API route (user) using address:", address);
+    // 從 Authorization header 中獲取 token
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const payload = await verifyToken(token);
+    const address = payload.address;
 
     const user = await db.query.users.findFirst({
       where: eq(users.id, address),
@@ -34,8 +41,16 @@ export async function GET(request: NextRequest) {
 // 更新用戶資料
 export async function PATCH(request: NextRequest) {
   try {
-    // 使用請求頭中的用戶地址或測試地址
-    const address = request.headers.get("x-user-address") || TEST_ADDRESS;
+    // 從 Authorization header 中獲取 token
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const payload = await verifyToken(token);
+    const address = payload.address;
+
     const body = await request.json();
 
     // 只允許更新特定字段
@@ -43,7 +58,6 @@ export async function PATCH(request: NextRequest) {
       "userName",
       "character",
       "clickedCount",
-      "nextClickTarget",
       "remainingGiftBox",
     ];
 

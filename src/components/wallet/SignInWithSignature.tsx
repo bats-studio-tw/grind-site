@@ -4,8 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useAbstractClient } from "@abstract-foundation/agw-react";
 import { useRouter } from "next/navigation";
 import { SyStemButtom } from "@/components/ui/SyStemButtom";
-import { useDispatch } from "react-redux";
-import { setAddress, setToken } from "@/store/userSlice";
 import { LoadingSpinnerIcon } from "@/components/ui/LoadingSpinnerIcon";
 import { CheckCircleIcon } from "@/components/ui/CheckCircleIcon";
 import { PencilIcon } from "@/components/ui/PencilIcon";
@@ -14,7 +12,6 @@ export function VerifyAndGetTokenButton() {
   const router = useRouter();
   const { address, isConnected } = useAccount();
   const { data: agwClient } = useAbstractClient();
-  const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [signature, setSignature] = useState<string | null>(null);
   const [verificationResult, setVerificationResult] = useState<{
@@ -68,9 +65,8 @@ export function VerifyAndGetTokenButton() {
         ? data.token
         : `Bearer ${data.token}`;
 
-      // 設置 token 和地址
-      dispatch(setToken(formattedToken));
-      dispatch(setAddress(address));
+      // 存儲 token 到 localStorage
+      localStorage.setItem("token", formattedToken);
 
       // 設置驗證結果
       setVerificationResult({ isValid: true });
@@ -85,7 +81,7 @@ export function VerifyAndGetTokenButton() {
     } finally {
       setIsLoading(false);
     }
-  }, [address, agwClient, signature, dispatch, router]);
+  }, [address, agwClient, signature, router]);
 
   // Auto-verify when signature is available
   useEffect(() => {

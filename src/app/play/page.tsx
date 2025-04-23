@@ -3,25 +3,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { Unity, useUnityContext } from "react-unity-webgl";
 import { UnityResponsiveLayout } from "@/components/layout/UnityResponsiveLayout";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
-import {
-  getUserEquipments,
-  getItems,
-  updateUserData,
-  getUserData,
-} from "@/lib/api";
 import { useRouter } from "next/navigation";
-import {
-  calculateCurrentClickTarget,
-  shouldRewardGiftBox,
-  generateGameStateData,
-} from "@/lib/gameUtils";
+import { getUserEquipments, getItems, getUserData, api } from "@/lib/api";
+import { calculateCurrentClickTarget } from "@/lib/gameUtils";
 
 export default function PlayPage() {
   const router = useRouter();
-  const { address, userName, character, clickedCount, remainingGiftBox } =
-    useSelector((state: RootState) => state.user);
 
   // Track if event listener is registered
   const [isListenerRegistered, setIsListenerRegistered] = useState(false);
@@ -37,11 +24,20 @@ export default function PlayPage() {
 
   // 檢查用戶是否已登錄
   useEffect(() => {
-    if (!address) {
-      console.log("No user found, redirecting to login page");
-      router.push("/");
-    }
-  }, [address, router]);
+    const checkAuth = async () => {
+      try {
+        const { data } = await getUserData();
+        if (!data) {
+          console.log("No user found, redirecting to login page");
+          router.push("/");
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        router.push("/");
+      }
+    };
+    checkAuth();
+  }, [router]);
 
   // 獲取用戶數據
   const handleGetUserData = useCallback(() => {
@@ -51,27 +47,35 @@ export default function PlayPage() {
           console.log("Unity not loaded yet, skipping user data send");
           return;
         }
+
         const { data: currentUserData } = await getUserData();
+
         if (!currentUserData) {
           console.error("Failed to get current user data");
           return;
         }
+
         const { data: equipments } = await getUserEquipments();
 
         const hatEquipment = equipments.find((e) => e.slot === "Hat");
         const faceEquipment = equipments.find((e) => e.slot === "Face");
         const { currentClickTarget, nextClickTarget } =
           calculateCurrentClickTarget(currentUserData.clickedCount);
+
         const userData = {
-          address: address || "",
-          userName: userName || "",
-          character: character || 0,
-          clickedCount: clickedCount || 0,
+          address: currentUserData.address || "",
+          userName: currentUserData.userName || "",
+          character: currentUserData.character || 0,
+          clickedCount: currentUserData.clickedCount || 0,
           currentClickTarget,
           nextClickTarget,
-          remainingGiftBox: remainingGiftBox || 0,
-          hat: hatEquipment ? hatEquipment.itemId : "None",
-          face: faceEquipment ? faceEquipment.itemId : "None",
+          remainingGiftBox: currentUserData.remainingGiftBox || 0,
+          hat: hatEquipment
+            ? `${hatEquipment.slot}${hatEquipment.item?.name}`
+            : "HatNone",
+          face: faceEquipment
+            ? `${faceEquipment.slot}${faceEquipment.item?.name}`
+            : "FaceNone",
         };
 
         sendMessage("GameRoot", "ReceiveUserData", JSON.stringify(userData));
@@ -81,32 +85,20 @@ export default function PlayPage() {
     })();
 
     return "ok";
-  }, [
-    address,
-    userName,
-    character,
-    clickedCount,
-    remainingGiftBox,
-    isLoaded,
-    sendMessage,
-  ]);
+  }, [isLoaded, sendMessage]);
 
   const handleGetInventoryItem = useCallback(() => {
     (async () => {
       const { data: items } = await getItems();
 
-      const inventoryItem = items.reduce<Record<string, string[]>>(
-        (acc, curr) => {
-          if (!acc[curr.slot]) {
-            acc[curr.slot] = [];
-          }
-          acc[curr.slot].push(`${curr.slot}${curr.name}`);
-          return acc;
-        },
-        {}
-      );
+      const inventoryItem: { [key: string]: string[] } = {
+        Hat: ["HatNone"],
+        Face: ["FaceNone"],
+      };
 
-      console.log("inventoryItem", inventoryItem);
+      items.forEach((item) => {
+        inventoryItem[item.slot].push(`${item.slot}${item.name}`);
+      });
 
       sendMessage(
         "GameRoot",
@@ -126,50 +118,31 @@ export default function PlayPage() {
             return;
           }
 
-          // Get current user data to check if we need to reward a gift box
-          const { data: currentUserData } = await getUserData();
-          if (!currentUserData) {
-            console.error("Failed to get current user data");
+          const response = await api.post("/user/click", { clickCount });
+          if (response.status !== 200) {
+            console.error(
+              "Failed to update click count:",
+              response.data.message
+            );
             return;
           }
 
-          const { currentClickTarget } = calculateCurrentClickTarget(
-            currentUserData.clickedCount
-          );
-
-          const shouldReward = shouldRewardGiftBox(
-            clickCount,
-            currentClickTarget
-          );
-
-          const updatedFields: {
-            clickedCount: number;
-            remainingGiftBox?: number;
-          } = {
-            clickedCount: clickCount,
-          };
+          const { shouldReward, currentClickTarget, nextClickTarget } =
+            response.data;
 
           if (shouldReward) {
-            updatedFields.remainingGiftBox =
-              (currentUserData.remainingGiftBox || 0) + 1;
+            const gameStateData = {
+              currentClickTarget,
+              nextClickTarget,
+              remainingGiftBox: response.data.remainingGiftBox,
+            };
+
+            sendMessage(
+              "GameRoot",
+              "ReceiveNextClickTarget",
+              JSON.stringify(gameStateData)
+            );
           }
-
-          const { data: updatedUserData, error } = await updateUserData(
-            updatedFields
-          );
-
-          if (error || !updatedUserData) {
-            console.error("Failed to update user data:", error);
-            return;
-          }
-
-          const gameStateData = generateGameStateData(updatedUserData);
-
-          sendMessage(
-            "GameRoot",
-            "ReceiveNextClickTarget",
-            JSON.stringify(gameStateData)
-          );
         } catch (error) {
           console.error("Error updating click count:", error);
         }
@@ -177,6 +150,62 @@ export default function PlayPage() {
     },
     [sendMessage]
   );
+
+  const handleUpdateWearItem = useCallback((data: string) => {
+    (async () => {
+      try {
+        const parsedData = JSON.parse(data);
+        console.log("Updating wear items - parsed data:", parsedData);
+
+        await api.post("/user/equip", parsedData);
+      } catch (error) {
+        console.error("Error updating wear items:", error);
+        if (error instanceof Error) {
+          console.error("Error details:", {
+            message: error.message,
+            stack: error.stack,
+          });
+        }
+      }
+    })();
+  }, []);
+
+  const handleGetGiftBoxResult = useCallback(() => {
+    (async () => {
+      try {
+        const { data: currentUserData } = await getUserData();
+        if (!currentUserData) {
+          console.error("Failed to get current user data");
+          return;
+        }
+
+        if (currentUserData.remainingGiftBox <= 0) {
+          console.error("No gift box available");
+          return;
+        }
+
+        // Call the gift box API
+        const response = await api.post("/user/gift-box");
+        if (response.status !== 200) {
+          console.error("Failed to open gift box:", response.data.message);
+          return;
+        }
+
+        const { item, remainingGiftBox } = response.data;
+
+        sendMessage(
+          "GameRoot",
+          "ReceiveGiftBoxResult",
+          JSON.stringify({
+            itemName: `${item.slot}${item.name}`,
+            remainingGiftBox,
+          })
+        );
+      } catch (error) {
+        console.error("Error opening gift box:", error);
+      }
+    })();
+  }, [sendMessage]);
 
   // Register event listener only when Unity is loaded
   useEffect(() => {
@@ -199,6 +228,12 @@ export default function PlayPage() {
             break;
           case "UpdateClickCount":
             handleUpdateClickCount(event.data.data);
+            break;
+          case "UpdateWearItem":
+            handleUpdateWearItem(event.data.data);
+            break;
+          case "GetGiftBoxResult":
+            handleGetGiftBoxResult();
             break;
           default:
             break;
@@ -224,6 +259,8 @@ export default function PlayPage() {
     handleGetUserData,
     handleGetInventoryItem,
     handleUpdateClickCount,
+    handleUpdateWearItem,
+    handleGetGiftBoxResult,
   ]);
 
   return (

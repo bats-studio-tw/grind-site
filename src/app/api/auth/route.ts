@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
     if (!existingUser) {
       await db.insert(users).values({
         id: address,
+        userName: `User${address.slice(0, 6)}`,
       });
     }
 

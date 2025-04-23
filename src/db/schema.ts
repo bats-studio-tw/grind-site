@@ -1,4 +1,11 @@
-import { mysqlTable, varchar, int, datetime } from "drizzle-orm/mysql-core";
+import {
+  mysqlTable,
+  varchar,
+  int,
+  datetime,
+  serial,
+  unique,
+} from "drizzle-orm/mysql-core";
 import { sql } from "drizzle-orm";
 
 export const users = mysqlTable("users", {
@@ -10,24 +17,31 @@ export const users = mysqlTable("users", {
   createdAt: datetime("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const items = mysqlTable("items", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  name: varchar("name", { length: 50 }),
-  slot: varchar("slot", { length: 20 }), // hat, face, body, etc.
-  type: int("type").default(0), // 0: 帽子, 1: 臉飾, 2: 身體, etc.
-});
+export const items = mysqlTable(
+  "items",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 50 }),
+    slot: varchar("slot", { length: 20 }),
+  },
+  (table) => [unique().on(table.slot, table.name)]
+);
 
 export const userItems = mysqlTable("user_items", {
-  id: varchar("id", { length: 36 }).primaryKey(),
+  id: serial("id").primaryKey(),
   userId: varchar("user_id", { length: 42 }).notNull(),
-  itemId: varchar("item_id", { length: 36 }).notNull(),
+  itemId: int("item_id").notNull(),
   obtainedAt: datetime("obtained_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const userEquipments = mysqlTable("user_equipments", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  userId: varchar("user_id", { length: 42 }).notNull(),
-  slot: varchar("slot", { length: 20 }).notNull(), // 裝備部位
-  itemId: varchar("item_id", { length: 36 }).notNull(), // 裝備的物品ID
-  equippedAt: datetime("equipped_at").default(sql`CURRENT_TIMESTAMP`),
-});
+export const userEquipments = mysqlTable(
+  "user_equipments",
+  {
+    id: serial("id").primaryKey(),
+    userId: varchar("user_id", { length: 42 }).notNull(),
+    slot: varchar("slot", { length: 20 }).notNull(), // 裝備部位
+    itemId: int("item_id").notNull(),
+    equippedAt: datetime("equipped_at").default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [unique().on(table.userId, table.slot)]
+);

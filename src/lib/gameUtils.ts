@@ -11,14 +11,18 @@ export const calculateCurrentClickTarget = (
   currentClickTarget: number;
   nextClickTarget: number;
 } => {
-  // 基礎難度係數（可微調）
   const growthFactor = 1.3;
+  const baseTarget = 100;
 
-  // 避免 0，並從 100 起跳
-  const base = Math.max(currentClickCount, 100);
+  let currentClickTarget = baseTarget;
 
-  // 計算目標，並四捨五入為 100 的倍數
-  const currentClickTarget = Math.ceil(base / 100) * 100;
+  // 用迴圈找出目前點擊數在哪個門檻區間
+  while (currentClickCount >= currentClickTarget) {
+    currentClickTarget =
+      Math.ceil((currentClickTarget * growthFactor) / 100) * 100;
+  }
+
+  // 下一個目標 = 下一階段的門檻
   const nextClickTarget =
     Math.ceil((currentClickTarget * growthFactor) / 100) * 100;
 
@@ -36,20 +40,11 @@ export const calculateCurrentClickTarget = (
  */
 export const shouldRewardGiftBox = (
   currentClickCount: number,
-  currentClickTarget: number
+  prevClickCount: number
 ): boolean => {
-  return currentClickCount >= currentClickTarget;
-};
+  const { currentClickTarget } = calculateCurrentClickTarget(prevClickCount);
 
-/**
- * 計算下一個點擊目標值
- * @param currentClickTarget 當前目標值
- * @returns 下一個目標值
- */
-export const calculateNextClickTarget = (
-  currentClickTarget: number
-): number => {
-  return currentClickTarget * 1.5;
+  return currentClickCount >= currentClickTarget;
 };
 
 /**

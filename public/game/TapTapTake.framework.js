@@ -1284,10 +1284,10 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  6225904: () => { Module['emscripten_get_now_backup'] = performance.now; },  
- 6225959: ($0) => { performance.now = function() { return $0; }; },  
- 6226007: ($0) => { performance.now = function() { return $0; }; },  
- 6226055: () => { performance.now = Module['emscripten_get_now_backup']; }
+  6225712: () => { Module['emscripten_get_now_backup'] = performance.now; },  
+ 6225767: ($0) => { performance.now = function() { return $0; }; },  
+ 6225815: ($0) => { performance.now = function() { return $0; }; },  
+ 6225863: () => { performance.now = Module['emscripten_get_now_backup']; }
 };
 
 
@@ -7949,6 +7949,26 @@ var ASM_CONSTS = {
         }
       } catch (e) {
         console.error("Error in UpdateClickCount:", e);
+      }
+    }
+
+  function _UpdateWearItem(jsonData) {
+      try {
+        console.log(
+          "Unity: Calling UpdateWearItem with data:",
+          UTF8ToString(jsonData)
+        );
+        if (window.parent) {
+          window.parent.postMessage(
+            {
+              type: "UpdateWearItem",
+              data: UTF8ToString(jsonData),
+            },
+            "*"
+          );
+        }
+      } catch (e) {
+        console.error("Error in UpdateWearItem:", e);
       }
     }
 
@@ -17492,6 +17512,7 @@ var wasmImports = {
   "JS_WebRequest_SetRequestHeader": _JS_WebRequest_SetRequestHeader,
   "JS_WebRequest_SetTimeout": _JS_WebRequest_SetTimeout,
   "UpdateClickCount": _UpdateClickCount,
+  "UpdateWearItem": _UpdateWearItem,
   "__assert_fail": ___assert_fail,
   "__cxa_begin_catch": ___cxa_begin_catch,
   "__cxa_end_catch": ___cxa_end_catch,

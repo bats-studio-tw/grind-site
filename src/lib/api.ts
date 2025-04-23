@@ -1,38 +1,31 @@
 import axios from "axios";
 import { UserData, Item, UserEquipment } from "@/types";
-import { store } from "@/store";
 
-const api = axios.create({
+// 創建 axios 實例
+export const api = axios.create({
   baseURL: "/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// 添加請求攔截器來設置 token
+// 添加請求攔截器
 api.interceptors.request.use((config) => {
-  const token = store.getState().user.token;
-  if (!token) {
-    console.log("No token found in store");
-    return config;
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = token;
   }
-
-  const formattedToken = token.startsWith("Bearer ")
-    ? token
-    : `Bearer ${token}`;
-  config.headers.Authorization = formattedToken;
-
   return config;
 });
 
-// 添加響應攔截器來處理 token 無效的情況
+// 添加響應攔截器
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error?.response?.status === 401) {
-      console.log("Token is invalid");
-      // 不再使用localStorage，改用store
-      store.dispatch({ type: "user/setToken", payload: null });
+      // 清除 token 並跳轉到登錄頁
+      localStorage.removeItem("token");
+      window.location.href = "/";
     }
     return Promise.reject(error);
   }

@@ -20,7 +20,6 @@ export async function GET(request: NextRequest) {
         obtainedAt: userItems.obtainedAt,
         name: items.name,
         slot: items.slot,
-        type: items.type,
       })
       .from(userItems)
       .leftJoin(items, eq(userItems.itemId, items.id))

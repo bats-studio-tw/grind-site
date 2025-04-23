@@ -2,24 +2,31 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { userEquipments, items } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
-
-// 固定用戶地址，用於測試
-const TEST_ADDRESS = "0x8846C613D13D6fE0AfB3E3659E228191E4B5D929";
+import { verifyToken } from "@/lib/jwt";
 
 // 獲取用戶裝備
 export async function GET(request: NextRequest) {
   try {
-    // 使用請求頭中的用戶地址或測試地址
-    const address = request.headers.get("x-user-address") || TEST_ADDRESS;
+    // 從 Authorization header 中獲取 token
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
-    console.log("API route (equipments) using address:", address);
+    const token = authHeader.split(" ")[1];
+    const payload = await verifyToken(token);
+    const address = payload.address;
 
     const equipments = await db
       .select({
+        id: userEquipments.id,
         slot: userEquipments.slot,
         itemId: userEquipments.itemId,
-        name: items.name,
-        type: items.type,
+        item: {
+          id: items.id,
+          name: items.name,
+          slot: items.slot,
+        },
       })
       .from(userEquipments)
       .leftJoin(items, eq(userEquipments.itemId, items.id))
@@ -38,8 +45,16 @@ export async function GET(request: NextRequest) {
 // 裝備/更換裝備
 export async function POST(request: NextRequest) {
   try {
-    // 使用請求頭中的用戶地址或測試地址
-    const address = request.headers.get("x-user-address") || TEST_ADDRESS;
+    // 從 Authorization header 中獲取 token
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const payload = await verifyToken(token);
+    const address = payload.address;
+
     const { slot, itemId } = await request.json();
 
     // 檢查物品是否存在且屬於該用戶
@@ -68,7 +83,6 @@ export async function POST(request: NextRequest) {
     } else {
       // 添加新裝備
       await db.insert(userEquipments).values({
-        id: crypto.randomUUID(),
         userId: address,
         slot,
         itemId,
@@ -88,8 +102,16 @@ export async function POST(request: NextRequest) {
 // 卸下裝備
 export async function DELETE(request: NextRequest) {
   try {
-    // 使用請求頭中的用戶地址或測試地址
-    const address = request.headers.get("x-user-address") || TEST_ADDRESS;
+    // 從 Authorization header 中獲取 token
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const token = authHeader.split(" ")[1];
+    const payload = await verifyToken(token);
+    const address = payload.address;
+
     const { slot } = await request.json();
 
     await db
