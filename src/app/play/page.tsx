@@ -12,7 +12,7 @@ export default function PlayPage() {
 
   // Track if event listener is registered
   const [isListenerRegistered, setIsListenerRegistered] = useState(false);
-  const version = "1.0.0";
+  const version = "1.0.1";
   const versionSuffix = `?v=${version}`;
 
   // Unity context setup
