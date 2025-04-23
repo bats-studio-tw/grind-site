@@ -4,9 +4,6 @@ import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { verifyToken } from "@/lib/jwt";
 
-// 固定用戶地址，用於測試
-const TEST_ADDRESS = "0x8846C613D13D6fE0AfB3E3659E228191E4B5D929";
-
 // 獲取用戶資料
 export async function GET(request: NextRequest) {
   try {
