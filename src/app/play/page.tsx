@@ -5,8 +5,18 @@ import { Unity, useUnityContext } from "react-unity-webgl";
 import { UnityResponsiveLayout } from "@/components/layout/UnityResponsiveLayout";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { getUserEquipments, getItems, updateUserData } from "@/lib/api";
+import {
+  getUserEquipments,
+  getItems,
+  updateUserData,
+  getUserData,
+} from "@/lib/api";
 import { useRouter } from "next/navigation";
+import {
+  calculateCurrentClickTarget,
+  shouldRewardGiftBox,
+  generateGameStateData,
+} from "@/lib/gameUtils";
 
 export default function PlayPage() {
   const router = useRouter();
@@ -37,17 +47,28 @@ export default function PlayPage() {
   const handleGetUserData = useCallback(() => {
     (async () => {
       try {
+        if (!isLoaded) {
+          console.log("Unity not loaded yet, skipping user data send");
+          return;
+        }
+        const { data: currentUserData } = await getUserData();
+        if (!currentUserData) {
+          console.error("Failed to get current user data");
+          return;
+        }
         const { data: equipments } = await getUserEquipments();
+
         const hatEquipment = equipments.find((e) => e.slot === "Hat");
         const faceEquipment = equipments.find((e) => e.slot === "Face");
-
+        const { currentClickTarget, nextClickTarget } =
+          calculateCurrentClickTarget(currentUserData.clickedCount);
         const userData = {
           address: address || "",
           userName: userName || "",
           character: character || 0,
           clickedCount: clickedCount || 0,
-          currentClickTarget: Math.max(clickedCount, 1) * 1.5,
-          nextClickTarget: Math.max(clickedCount, 1) * 1.5 * 1.5,
+          currentClickTarget,
+          nextClickTarget,
           remainingGiftBox: remainingGiftBox || 0,
           hat: hatEquipment ? hatEquipment.itemId : "None",
           face: faceEquipment ? faceEquipment.itemId : "None",
@@ -60,7 +81,15 @@ export default function PlayPage() {
     })();
 
     return "ok";
-  }, [address, userName, character, clickedCount, remainingGiftBox]);
+  }, [
+    address,
+    userName,
+    character,
+    clickedCount,
+    remainingGiftBox,
+    isLoaded,
+    sendMessage,
+  ]);
 
   const handleGetInventoryItem = useCallback(() => {
     (async () => {
@@ -85,23 +114,69 @@ export default function PlayPage() {
         JSON.stringify(inventoryItem)
       );
     })();
-  }, []);
+  }, [sendMessage]);
 
-  const handleUpdateClickCount = useCallback((value: string) => {
-    (async () => {
-      try {
-        const clickCount = parseInt(value);
-        if (isNaN(clickCount)) {
-          console.error("Invalid click count value:", value);
-          return;
+  const handleUpdateClickCount = useCallback(
+    (value: string) => {
+      (async () => {
+        try {
+          const clickCount = parseInt(value);
+          if (isNaN(clickCount)) {
+            console.error("Invalid click count value:", value);
+            return;
+          }
+
+          // Get current user data to check if we need to reward a gift box
+          const { data: currentUserData } = await getUserData();
+          if (!currentUserData) {
+            console.error("Failed to get current user data");
+            return;
+          }
+
+          const { currentClickTarget } = calculateCurrentClickTarget(
+            currentUserData.clickedCount
+          );
+
+          const shouldReward = shouldRewardGiftBox(
+            clickCount,
+            currentClickTarget
+          );
+
+          const updatedFields: {
+            clickedCount: number;
+            remainingGiftBox?: number;
+          } = {
+            clickedCount: clickCount,
+          };
+
+          if (shouldReward) {
+            updatedFields.remainingGiftBox =
+              (currentUserData.remainingGiftBox || 0) + 1;
+          }
+
+          const { data: updatedUserData, error } = await updateUserData(
+            updatedFields
+          );
+
+          if (error || !updatedUserData) {
+            console.error("Failed to update user data:", error);
+            return;
+          }
+
+          const gameStateData = generateGameStateData(updatedUserData);
+
+          sendMessage(
+            "GameRoot",
+            "ReceiveNextClickTarget",
+            JSON.stringify(gameStateData)
+          );
+        } catch (error) {
+          console.error("Error updating click count:", error);
         }
-
-        await updateUserData({ clickedCount: clickCount });
-      } catch (error) {
-        console.error("Error updating click count:", error);
-      }
-    })();
-  }, []);
+      })();
+    },
+    [sendMessage]
+  );
 
   // Register event listener only when Unity is loaded
   useEffect(() => {
@@ -109,14 +184,14 @@ export default function PlayPage() {
 
     // Only set up event listeners when Unity is fully loaded
     if (isLoaded && !isListenerRegistered) {
-      console.log("Unity loaded - registering GetUserData event listener");
-
       // Add a message event listener to catch all messages
       messageHandler = (event: MessageEvent) => {
         console.log("Received message:", event.data);
         if (!event.data) return;
+
         switch (event.data.type) {
           case "GetUserData":
+            console.log("GetUserData");
             handleGetUserData();
             break;
           case "GetInventoryItem":
@@ -143,7 +218,13 @@ export default function PlayPage() {
         setIsListenerRegistered(false);
       }
     };
-  }, [isLoaded, isListenerRegistered, handleGetUserData]);
+  }, [
+    isLoaded,
+    isListenerRegistered,
+    handleGetUserData,
+    handleGetInventoryItem,
+    handleUpdateClickCount,
+  ]);
 
   return (
     <UnityResponsiveLayout

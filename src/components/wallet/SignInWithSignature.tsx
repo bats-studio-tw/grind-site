@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useAccount } from "wagmi";
 import { useState, useEffect, useCallback } from "react";
 import { useAbstractClient } from "@abstract-foundation/agw-react";
@@ -24,7 +25,15 @@ export function VerifyAndGetTokenButton() {
   const hasSigned = !!signature;
 
   const handleVerify = useCallback(async () => {
-    if (!address || !agwClient || !signature) return;
+    if (!address || !agwClient || !signature) {
+      console.error(
+        "Missing required parameters",
+        address,
+        agwClient,
+        signature
+      );
+      return;
+    }
 
     setIsLoading(true);
     setVerificationResult(null);
@@ -35,24 +44,21 @@ export function VerifyAndGetTokenButton() {
         .slice(0, 10)}`;
       const formattedMessage = `\x19Ethereum Signed Message:\n${message.length}${message}`;
 
-      const res = await fetch("/api/auth", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const res = await axios.post(
+        "/api/auth",
+        {
           address,
           signature,
           message: formattedMessage,
-        }),
-      });
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Authentication failed");
-      }
-
-      const data = await res.json();
+      const data = res.data;
       if (!data.token) {
         throw new Error("No token received from server");
       }
@@ -83,10 +89,12 @@ export function VerifyAndGetTokenButton() {
 
   // Auto-verify when signature is available
   useEffect(() => {
-    if (isConnected && address) {
+    // Only run verify if we have a signature and are connected
+    if (isConnected && address && signature) {
       handleVerify();
     }
-  }, [isConnected, address, handleVerify]);
+    // Depend on signature as well
+  }, [isConnected, address, signature, handleVerify]);
 
   const handleSignMessage = async () => {
     if (!address || !agwClient) return;

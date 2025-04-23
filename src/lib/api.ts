@@ -17,17 +17,10 @@ api.interceptors.request.use((config) => {
     return config;
   }
 
-  // Debug: 打印token格式
-  console.log("Token from store:", token);
-
-  // 確保token格式正確
   const formattedToken = token.startsWith("Bearer ")
     ? token
     : `Bearer ${token}`;
   config.headers.Authorization = formattedToken;
-
-  // Debug: 打印最終的Authorization header
-  console.log("Final Authorization header:", config.headers.Authorization);
 
   return config;
 });
@@ -63,13 +56,14 @@ export const getUserData = async (): Promise<{
 
 export const updateUserData = async (
   userData: Partial<UserData>
-): Promise<{ error: Error | null }> => {
+): Promise<{ data: UserData | null; error: Error | null }> => {
   try {
-    await api.put("/user", userData);
-    return { error: null };
+    const { data } = await api.patch("/user", userData);
+    return { data, error: null };
   } catch (error) {
     console.error("Update user data error:", error);
     return {
+      data: null,
       error: error instanceof Error ? error : new Error("Unknown error"),
     };
   }

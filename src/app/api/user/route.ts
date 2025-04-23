@@ -53,7 +53,12 @@ export async function PATCH(request: NextRequest) {
 
     await db.update(users).set(updateData).where(eq(users.id, address));
 
-    return NextResponse.json({ message: "User updated successfully" });
+    // 獲取更新後的用戶資料
+    const updatedUser = await db.query.users.findFirst({
+      where: eq(users.id, address),
+    });
+
+    return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Update user error:", error);
     return NextResponse.json(
