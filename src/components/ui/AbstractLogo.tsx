@@ -2,7 +2,7 @@ import React from "react";
 
 interface AbstractLogoProps {
   color?: string;
-  size?: number;
+  size?: number
 }
 
 export function AbstractLogo({

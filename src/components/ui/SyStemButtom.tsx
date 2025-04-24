@@ -82,12 +82,14 @@ export const SyStemButtom: React.FC<SyStemButtomProps> = ({
         }}
       >
         <div className="flex items-center justify-center w-full h-full gap-2">
-          <div
-            className="flex items-center justify-center"
-            style={{ width: `${50 * scale}px`, height: `${50 * scale}px` }}
-          >
-            {leftSlot}
-          </div>
+          {leftSlot && (
+            <div
+              className="flex items-center justify-center"
+              style={{ width: `${50 * scale}px`, height: `${50 * scale}px` }}
+            >
+              {leftSlot}
+            </div>
+          )}
           <div
             className="flex text-center whitespace-nowrap w-fit"
             style={{ fontSize: `${50 * scale}px` }}

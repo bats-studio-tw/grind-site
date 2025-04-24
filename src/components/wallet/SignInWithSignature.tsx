@@ -71,8 +71,8 @@ export function VerifyAndGetTokenButton() {
       // 設置驗證結果
       setVerificationResult({ isValid: true });
 
-      // 立即跳轉到 play 頁面
-      router.push("/play");
+      // 跳轉到角色選擇頁面
+      router.push("/character");
     } catch (err) {
       console.error("Verification error:", err);
       setVerificationResult({

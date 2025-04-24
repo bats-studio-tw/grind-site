@@ -12,7 +12,7 @@ export default function PlayPage() {
 
   // Track if event listener is registered
   const [isListenerRegistered, setIsListenerRegistered] = useState(false);
-  const version = "1.0.3";
+  const version = "1.0.4";
   const versionSuffix = `?v=${version}`;
 
   // Unity context setup
@@ -273,6 +273,7 @@ export default function PlayPage() {
       aspectRatio={1170 / 2137}
       isLoading={!isLoaded}
       loadingMessage={`Loading... ${Math.round(loadingProgression * 100)}%`}
+      backgroundColor="#0f1d13"
     >
       <Image
         src="/home-background.jpg"

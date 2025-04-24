@@ -9,6 +9,7 @@ interface UnityResponsiveLayoutProps {
   aspectRatio: number; // 寬 / 高，例如 1170 / 2137
   isLoading?: boolean; // 是否正在載入
   loadingMessage?: string; // 載入中的訊息
+  backgroundColor?: string; // 背景顏色
 }
 
 export function UnityResponsiveLayout({
@@ -16,6 +17,7 @@ export function UnityResponsiveLayout({
   isLoading,
   loadingMessage,
   children,
+  backgroundColor = "#386040",
 }: PropsWithChildren<UnityResponsiveLayoutProps>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
@@ -63,7 +65,10 @@ export function UnityResponsiveLayout({
   }, [aspectRatio, dispatch]);
 
   return (
-    <div className="bg-[#379b5f] flex justify-center items-center m-0 w-[100dvw] h-[100dvh] overflow-hidden">
+    <div
+      className=" flex justify-center items-center m-0 w-[100dvw] h-[100dvh] overflow-hidden"
+      style={{ backgroundColor: backgroundColor }}
+    >
       <div
         ref={containerRef}
         className="absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] flex justify-center items-center bg-[#379b5f]"
