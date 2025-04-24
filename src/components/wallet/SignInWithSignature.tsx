@@ -142,7 +142,7 @@ export function VerifyAndGetTokenButton() {
                 </>
               ) : (
                 <>
-                  <CheckCircleIcon isValid={verificationResult?.isValid} />
+                  <CheckCircleIcon isValid={verificationResult?.isValid} size={50}/>
                   <span className="text-center">
                     {verificationResult?.isValid
                       ? "Verified"
