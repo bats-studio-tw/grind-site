@@ -4,9 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useAbstractClient } from "@abstract-foundation/agw-react";
 import { useRouter } from "next/navigation";
 import { SyStemButtom } from "@/components/ui/SyStemButtom";
-import { LoadingSpinnerIcon } from "@/components/ui/LoadingSpinnerIcon";
-import { CheckCircleIcon } from "@/components/ui/CheckCircleIcon";
-import { PencilIcon } from "@/components/ui/PencilIcon";
 
 export function VerifyAndGetTokenButton() {
   const router = useRouter();
@@ -131,20 +128,6 @@ export function VerifyAndGetTokenButton() {
         className={`${
           hasSigned && isLoading ? "opacity-50 cursor-not-allowed" : ""
         }`}
-        leftSlot={
-          hasSigned ? (
-            isLoading ? (
-              <LoadingSpinnerIcon size={"100%"} color="#FFF" />
-            ) : (
-              <CheckCircleIcon
-                isValid={verificationResult?.isValid}
-                size={"100%"}
-              />
-            )
-          ) : (
-            <PencilIcon size={"100%"} color="#FFF" />
-          )
-        }
         rightSlot={
           hasSigned
             ? isLoading

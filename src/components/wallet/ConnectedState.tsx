@@ -22,7 +22,6 @@ export function ConnectedState() {
         topColor="bg-[#47CC89]"
         bottomColor="bg-[#1A7F6A]"
         textColor="text-[#FFF]"
-        leftSlot={<DisconnectIcon size={50} color="#FFF" />}
         rightSlot="Disconnect"
       />
     </>
