@@ -66,10 +66,11 @@ export const SyStemButtom: React.FC<SyStemButtomProps> = ({
         onTouchStart={handleMouseDown}
         onTouchEnd={handleMouseUp}
         disabled={disabled}
-        className={`absolute w-full h-full ${topColor} ${borderColor} ${borderWidth} ${textColor} rounded-2xl font-bold text-[50px] transition-all duration-75 
+        className={`absolute w-full h-full ${topColor} ${borderColor} ${borderWidth} ${textColor} rounded-2xl font-bold transition-all duration-75 
           ${isPressed ? "translate-y-6" : ""} ${
           disabled ? "opacity-50 cursor-not-allowed" : ""
         } ${className}`}
+        style={{ fontSize: `${50 * scale}px` }}
       >
         {children}
       </button>
