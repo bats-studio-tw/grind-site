@@ -19,12 +19,12 @@ export const calculateCurrentClickTarget = (
   // 用迴圈找出目前點擊數在哪個門檻區間
   while (currentClickCount >= currentClickTarget) {
     currentClickTarget =
-      Math.ceil((currentClickTarget * growthFactor) / 100) * 100;
+      Math.ceil((currentClickTarget * growthFactor) / 20) * 20;
   }
 
   // 下一個目標 = 下一階段的門檻
   const nextClickTarget =
-    Math.ceil((currentClickTarget * growthFactor) / 100) * 100;
+    Math.ceil((currentClickTarget * growthFactor) / 20) * 20;
 
   return {
     currentClickTarget,
