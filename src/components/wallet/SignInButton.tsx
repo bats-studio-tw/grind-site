@@ -14,11 +14,8 @@ export function SignInButton() {
       topColor="bg-[#FDE613]"
       bottomColor="bg-[#DE8316]"
       textColor="text-[#7E2200]"
-    >
-      <div className="flex items-center justify-center gap-5">
-        <AbstractLogo size={50} color="#7E2200" />
-        Connect
-      </div>
-    </SyStemButtom>
+      leftSlot={<AbstractLogo size={50} color="#7E2200" />}
+      rightSlot="Connect"
+    />
   );
 }

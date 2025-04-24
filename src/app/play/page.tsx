@@ -12,7 +12,7 @@ export default function PlayPage() {
 
   // Track if event listener is registered
   const [isListenerRegistered, setIsListenerRegistered] = useState(false);
-  const version = "1.0.2";
+  const version = "1.0.3";
   const versionSuffix = `?v=${version}`;
 
   // Unity context setup
@@ -65,7 +65,6 @@ export default function PlayPage() {
           calculateCurrentClickTarget(currentUserData.clickedCount);
 
         const userData = {
-          address: currentUserData.address || "",
           userName: currentUserData.userName || "",
           character: currentUserData.character || 0,
           clickedCount: currentUserData.clickedCount || 0,

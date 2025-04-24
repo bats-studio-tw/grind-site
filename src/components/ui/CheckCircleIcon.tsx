@@ -2,7 +2,7 @@ import React from "react";
 
 interface CheckCircleIconProps {
   color?: string;
-  size?: number;
+  size?: number | string;
   isValid?: boolean;
 }
 
@@ -13,8 +13,7 @@ export function CheckCircleIcon({
 }: CheckCircleIconProps) {
   return (
     <svg
-      width={size}
-      height={size}
+      className={`w-[${size}] h-[${size}]`}
       fill="none"
       stroke={color}
       viewBox="0 0 24 24"

@@ -22,12 +22,9 @@ export function ConnectedState() {
         topColor="bg-[#47CC89]"
         bottomColor="bg-[#1A7F6A]"
         textColor="text-[#FFF]"
-      >
-        <div className="flex items-center justify-center gap-5">
-          <DisconnectIcon size={50} color="#FFF" />
-          Disconnect
-        </div>
-      </SyStemButtom>
+        leftSlot={<DisconnectIcon size={50} color="#FFF" />}
+        rightSlot="Disconnect"
+      />
     </>
   );
 }

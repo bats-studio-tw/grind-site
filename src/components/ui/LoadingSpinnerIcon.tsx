@@ -2,7 +2,7 @@ import React from "react";
 
 interface LoadingSpinnerIconProps {
   color?: string;
-  size?: number;
+  size?: number | string;
 }
 
 export function LoadingSpinnerIcon({
@@ -11,9 +11,7 @@ export function LoadingSpinnerIcon({
 }: LoadingSpinnerIconProps) {
   return (
     <svg
-      className="animate-spin"
-      width={size}
-      height={size}
+      className={`animate-spin w-[${size}] h-[${size}]`}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

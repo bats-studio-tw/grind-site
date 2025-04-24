@@ -2,7 +2,7 @@ import React from "react";
 
 interface PencilIconProps {
   color?: string;
-  size?: number;
+  size?: number | string;
 }
 
 export function PencilIcon({
@@ -11,8 +11,7 @@ export function PencilIcon({
 }: PencilIconProps) {
   return (
     <svg
-      width={size}
-      height={size}
+      className={`w-[${size}] h-[${size}]`}
       fill="none"
       stroke={color}
       viewBox="0 0 24 24"

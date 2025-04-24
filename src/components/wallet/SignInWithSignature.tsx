@@ -131,34 +131,30 @@ export function VerifyAndGetTokenButton() {
         className={`${
           hasSigned && isLoading ? "opacity-50 cursor-not-allowed" : ""
         }`}
-      >
-        <div className="flex items-center justify-center gap-5">
-          {hasSigned ? (
-            <>
-              {isLoading ? (
-                <>
-                  <LoadingSpinnerIcon size={50} color="#FFF" />
-                  <span className="w-full text-center">Verifying...</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircleIcon isValid={verificationResult?.isValid} size={50}/>
-                  <span className="text-center">
-                    {verificationResult?.isValid
-                      ? "Verified"
-                      : "Verify & Get Token"}
-                  </span>
-                </>
-              )}
-            </>
+        leftSlot={
+          hasSigned ? (
+            isLoading ? (
+              <LoadingSpinnerIcon size={"100%"} color="#FFF" />
+            ) : (
+              <CheckCircleIcon
+                isValid={verificationResult?.isValid}
+                size={"100%"}
+              />
+            )
           ) : (
-            <>
-              <PencilIcon size={50} color="#FFF" />
-              <span className="text-center">Sign Message</span>
-            </>
-          )}
-        </div>
-      </SyStemButtom>
+            <PencilIcon size={"100%"} color="#FFF" />
+          )
+        }
+        rightSlot={
+          hasSigned
+            ? isLoading
+              ? "Verifying..."
+              : verificationResult?.isValid
+              ? "Verified"
+              : "Verify & Get Token"
+            : "Sign Message"
+        }
+      />
     </>
   );
 }
