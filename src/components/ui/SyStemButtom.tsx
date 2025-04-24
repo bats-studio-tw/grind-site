@@ -54,8 +54,8 @@ export const SyStemButtom: React.FC<SyStemButtomProps> = ({
     >
       {/* Bottom layer with border */}
       <div
-        className={`absolute w-full h-full ${bottomColor} ${borderColor} ${borderWidth} rounded-2xl`}
-        style={{ top: `${24 * scale}px` }}
+        className={`absolute w-full h-full ${bottomColor} ${borderColor} ${borderWidth}`}
+        style={{ top: `${24 * scale}px`,borderRadius: `${16 * scale}px` }}
       ></div>
 
       {/* Top layer with border and press animation */}
@@ -67,11 +67,12 @@ export const SyStemButtom: React.FC<SyStemButtomProps> = ({
         onTouchStart={handleMouseDown}
         onTouchEnd={handleMouseUp}
         disabled={disabled}
-        className={`absolute w-full h-full ${topColor} ${borderColor} ${borderWidth} ${textColor} rounded-2xl font-bold transition-all duration-75 
+        className={`absolute w-full h-full ${topColor} ${borderColor} ${borderWidth} ${textColor} font-bold transition-all duration-75 
           ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
         style={{ 
           fontSize: `${50 * scale}px`,
-          transform: isPressed ? `translateY(${24 * scale}px)` : 'none'
+          transform: isPressed ? `translateY(${24 * scale}px)` : 'none',
+          borderRadius: `${16 * scale}px`
         }}
       >
         {children}
