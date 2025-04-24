@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { useLoginWithAbstract } from "@abstract-foundation/agw-react";
 import { SyStemButtom } from "@/components/ui/SyStemButtom";
 import { updateUserData } from "@/lib/api";
 import { useRouter } from "next/navigation";
@@ -11,7 +10,6 @@ interface StartGameButtonProps {
 }
 
 export function StartGameButton({ selectedCharacter }: StartGameButtonProps) {
-  const { login } = useLoginWithAbstract();
   const router = useRouter();
 
   const handleClick = async () => {
