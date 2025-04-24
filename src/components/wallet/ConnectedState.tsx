@@ -5,7 +5,6 @@ import { useAccount } from "wagmi";
 import { useLoginWithAbstract } from "@abstract-foundation/agw-react";
 import { VerifyAndGetTokenButton } from "./SignInWithSignature";
 import { SyStemButtom } from "@/components/ui/SyStemButtom";
-import { DisconnectIcon } from "@/components/ui/DisconnectIcon";
 
 export function ConnectedState() {
   const { address } = useAccount();
