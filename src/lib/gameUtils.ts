@@ -11,7 +11,7 @@ export const calculateCurrentClickTarget = (
   currentClickTarget: number;
   nextClickTarget: number;
 } => {
-  const growthFactor = 1.3;
+  const growthFactor = 1.1;
   const baseTarget = 100;
 
   let currentClickTarget = baseTarget;
@@ -19,12 +19,12 @@ export const calculateCurrentClickTarget = (
   // 用迴圈找出目前點擊數在哪個門檻區間
   while (currentClickCount >= currentClickTarget) {
     currentClickTarget =
-      Math.ceil((currentClickTarget * growthFactor) / 20) * 20;
+      Math.ceil((currentClickTarget * growthFactor) / 10) * 10;
   }
 
   // 下一個目標 = 下一階段的門檻
   const nextClickTarget =
-    Math.ceil((currentClickTarget * growthFactor) / 20) * 20;
+    Math.ceil((currentClickTarget * growthFactor) / 10) * 10;
 
   return {
     currentClickTarget,
